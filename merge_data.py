@@ -34,6 +34,51 @@ def merge_data():
     pop_df = pop_df.drop(['Country Code', 'Indicator Name', 'Indicator Code'], axis=1)
     pop_df = pop_df.melt(id_vars='Country Name', var_name='Year', value_name='Population')
     pop_df = pop_df.rename(columns={'Country Name':'Country'})
+    
+    #rename countries in hdi_df so consistent in all three datasets for clean merge
+    hdi_df['Country'] = hdi_df['Country'].replace({"Bolivia (Plurinational State of)":"Bolivia",
+                                              "Congo":"Congo (Rep)",
+                                              "Congo (Democratic Republic of the)":"Congo (Dem Rep)",
+                                              "Czechia":"Czech Republic",
+                                              "Côte d'Ivoire":"Cote d'Ivoire",
+                                              "Eswatini (Kingdom of)":"Swaziland",
+                                              "Hong Kong, China (SAR)":"Hong Kong",
+                                              "Iran (Islamic Republic of)":"Iran",
+                                              "Korea (Rep)":"South Korea",
+                                              "Lao People's Democratic Republic":"Laos",
+                                              "Micronesia (Federated States of)":"Micronesia (Fed States)",
+                                              "Moldova (Republic of)":"Moldova",
+                                               "Russian Federation":"Russia",
+                                              "Saint Lucia":"St. Lucia",
+                                              "Tanzania (United Republic of)":"Tanzania",
+                                              "The former Yugoslav Republic of Macedonia":"North Macedonia",
+                                              "Venezuela (Bolivarian Republic of)":"Venezuela",
+                                              "Viet Nam":"Vietnam"})
+
+    #rename countries in power_df  so consistent in all three datasets for clean merge
+    power_df['country_long'] = power_df['country_long'].replace({"Cape Verde":"Cabo Verde", 
+                                                             "Congo":"Congo (Rep)",
+                                                             "Cote DIvoire":"Cote d'Ivoire",
+                                                             "Democratic Republic of the Congo":"Congo (Dem Rep)",
+                                                             "Macedonia":"North Macedonia",
+                                                             "United States of America":"United States"})
+
+    #rename countries in pop_df so consistent in all three datasets for clean merge
+    pop_df['Country'] = pop_df['Country'].replace({"Congo, Dem. Rep.":"Congo (Dem Rep)", 
+                                               "Congo, Rep.":"Congo (Rep)",
+                                              "Egypt, Arab Rep.":"Egypt",
+                                              "Micronesia, Fed. Sts.":"Micronesia (Fed States)",
+                                               "Gambia, The":"Gambia",
+                                               "Hong Kong SAR, China":"Hong Kong",
+                                               "Iran, Islamic Rep.":"Iran",
+                                               "Korea, Rep.":"South Korea",
+                                               "Lao PDR":"Laos",
+                                               "Korea, Dem. People’s Rep.":"North Korea",
+                                               "Russian Federation":"Russia",
+                                               "Slovak Republic":"Slovakia",
+                                               "Venezuela, RB":"Venezuela",
+                                               "Yemen, Rep.":"Yemen"
+                                              })
 
     #filter power df and create df for cumulative capacity
     pow_pd = power_df[['country_long', 'capacity_mw', 'commissioning_year' ]]
