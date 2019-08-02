@@ -1,18 +1,4 @@
-﻿
-
-+*In[188]:*+
-[source, ipython3]
-----
-import pandas as pd
-import numpy as np
-import os
-----
-
-
-+*In[189]:*+
-[source, ipython3]
-----
-#import, clean and format BP consumption data
+﻿#import, clean and format BP consumption data
 consumption_import = pd.read_excel (r'data\bp-stats-review-2019-all-data.xlsx.', sheet_name='Primary Energy Consumption',skiprows=2)
 consumption_import["Region"] = ""
 
@@ -57,47 +43,9 @@ Region = consumption.Region
 consumption.drop(labels=["Region"],axis=1,inplace=True)
 consumption.insert(1,"Region",Region)
 consumption.head()
-----
 
 
-+*Out[189]:*+
-----
-[cols=",,,,,,,,,,,,,,,,,,,,,",options="header",]
-|=======================================================================
-| |Country |Region |1965 |1966 |1967 |1968 |1969 |1970 |1971 |1972 |...
-|2009 |2010 |2011 |2012 |2013 |2014 |2015 |2016 |2017 |2018
-|76 |Algeria |Africa |2.122521 |2.556875 |2.416595 |2.592053 |2.874065
-|3.145228 |3.406506 |3.826168 |... |38.590218 |37.610113 |39.934475
-|43.647978 |46.170665 |50.351986 |53.095828 |53.040220 |53.128087
-|56.714034
 
-|6 |Argentina |South/Central America |26.914442 |27.809713 |28.635373
-|29.623572 |30.644712 |28.937326 |30.747979 |31.299226 |... |73.284787
-|77.182535 |78.724688 |81.019815 |84.488737 |84.127455 |86.098900
-|85.917292 |86.103674 |85.052439
-
-|87 |Australia |Asia Pacific |34.754074 |38.138622 |40.451888 |42.901847
-|44.664215 |48.722756 |51.153529 |53.497719 |... |131.370957 |131.909111
-|136.354959 |134.617606 |135.300720 |137.455801 |139.228684 |142.133479
-|140.507273 |144.326885
-
-|19 |Austria |Europe |15.843913 |16.567961 |16.732965 |17.912638
-|18.614470 |21.257209 |21.290688 |22.029252 |... |34.341610 |35.558094
-|33.271409 |34.962956 |34.650772 |33.343115 |33.425071 |34.563106
-|35.523087 |34.995833
-
-|55 |Azerbaijan |CIS |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |...
-|11.346068 |11.196925 |12.457590 |12.834030 |13.195966 |13.458557
-|14.718477 |14.582488 |14.305965 |14.396778
-|=======================================================================
-
-5 rows × 56 columns
-----
-
-
-+*In[190]:*+
-[source, ipython3]
-----
 #import and format BP Consumption by Fuel Type data (row cleanup accomplished through merge in next cell)
 consump_by_fuel_import = pd.read_excel (r'data\bp-stats-review-2019-all-data.xlsx.', sheet_name='Primary Energy - Cons by fuel',skiprows=2)
 consump_by_fuel_import
@@ -116,89 +64,9 @@ consump_by_fuel = consump_by_fuel_import.rename(columns={"Million tonnes oil equ
                                                    "Change Renew- ables":"% Change Renewables"})
 consump_by_fuel = consump_by_fuel.drop(['Unnamed: 15','Total','Total.1'], axis=1)
 consump_by_fuel.head()
-----
 
 
-+*Out[190]:*+
-----
-[cols=",,,,,,,,,,,,,,,,,,,",options="header",]
-|=======================================================================
-| |Country |2017 Oil |2017 Nat Gas |2017 Coal |2017 Nuclear |2017 Hydro
-|2017 Renewables |2018 Oil |2018 Nat Gas |2018 Coal |2018 Nuclear |2018
-Hydro |2018 Renewables |% Change Oil |% Change Nat Gas |% Change Coal |%
-Change Nuclear |% Change Hydro |% Change Renewables
-|0 |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN
-|NaN |NaN |NaN |NaN |NaN
 
-|1 |Canada |108.796753 |94.324807 |18.614241 |22.720051 |89.718592
-|9.522295 |109.974271 |99.516040 |14.420876 |22.636377 |87.625215
-|10.251378 |-1.082310 |-5.503571 |22.527723 |0.368283 |2.333270
-|-7.656580
-
-|2 |Mexico |85.819769 |74.285175 |15.198004 |2.462520 |7.206330
-|4.328809 |82.824033 |76.950748 |11.902586 |3.074757 |7.330206 |4.831491
-|3.490730 |-3.588297 |21.683234 |-24.862191 |-1.718992 |-11.612478
-
-|3 |US |901.997187 |635.805709 |331.263340 |191.726344 |67.159948
-|94.528165 |919.729513 |702.588114 |317.009775 |192.233230 |65.327044
-|103.752619 |-1.965896 |-10.503587 |4.302790 |-0.264380 |2.729162
-|-9.758419
-
-|4 |Total North America |1096.613710 |804.415691 |365.075585 |216.908916
-|164.084871 |108.379269 |1112.527817 |879.054901 |343.333237 |217.944364
-|160.282466 |118.835487 |-1.451204 |-9.278686 |5.955574 |-0.477365
-|2.317340 |-9.647803
-|=======================================================================
-----
-
-
-+*In[191]:*+
-[source, ipython3]
-----
 #merge consumption df with consump_by_fuel (left merge to finish cleanup of consump_by_fuel)
 all_consump_data = pd.merge(consumption,consump_by_fuel,how="left",on="Country")
 all_consump_data.head()
-----
-
-
-+*Out[191]:*+
-----
-[cols=",,,,,,,,,,,,,,,,,,,,,",options="header",]
-|=======================================================================
-| |Country |Region |1965 |1966 |1967 |1968 |1969 |1970 |1971 |1972 |...
-|2018 Coal |2018 Nuclear |2018 Hydro |2018 Renewables |% Change Oil |%
-Change Nat Gas |% Change Coal |% Change Nuclear |% Change Hydro |%
-Change Renewables
-|0 |Algeria |Africa |2.122521 |2.556875 |2.416595 |2.592053 |2.874065
-|3.145228 |3.406506 |3.826168 |... |0.182000 |0.000000 |0.026474
-|0.138707 |-1.245490 |-9.900990 |0.000000 |NaN |-108.928571 |-17.208413
-
-|1 |Argentina |South/Central America |26.914442 |27.809713 |28.635373
-|29.623572 |30.644712 |28.937326 |30.747979 |31.299226 |... |1.217355
-|1.555099 |9.424233 |0.863866 |6.003074 |-0.836876 |-13.034053
-|-12.887694 |-0.256303 |-26.767131
-
-|2 |Australia |Asia Pacific |34.754074 |38.138622 |40.451888 |42.901847
-|44.664215 |48.722756 |51.153529 |53.497719 |... |44.276481 |0.000000
-|3.907297 |7.215217 |-4.364573 |-0.374445 |1.753046 |NaN |-27.584141
-|-24.110529
-
-|3 |Austria |Europe |15.843913 |16.567961 |16.732965 |17.912638
-|18.614470 |21.257209 |21.290688 |22.029252 |... |2.856240 |0.000000
-|8.491608 |2.770039 |-2.353234 |4.222063 |8.369003 |NaN |2.194475
-|1.942376
-
-|4 |Azerbaijan |CIS |NaN |NaN |NaN |NaN |NaN |NaN |NaN |NaN |...
-|0.001229 |0.000000 |0.400043 |0.045834 |2.074452 |-1.876377 |0.000000
-|NaN |-1.233967 |-40.228453
-|=======================================================================
-
-5 rows × 74 columns
-----
-
-
-+*In[ ]:*+
-[source, ipython3]
-----
-
-----
