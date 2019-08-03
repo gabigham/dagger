@@ -152,12 +152,9 @@ def merge_data():
     tt['Fuel']=vals[1]
     ts=consumption.melt(id_vars=['Country','Region'], var_name='Year',value_name='total_gen')
     ts=ts.astype({'Year':'str'})
-    all_consump_data=pd.merge(tt,ts,on=['Country','Year'])
+    all_consump_data=pd.merge(tt,ts,on=['Country','Year'], how='right')
     all_consump_data['energy']=11.96*all_consump_data['energy']
     all_consump_data['total_gen']=11.96*all_consump_data['total_gen']
-
-    #drop 
-    all_consump_data = all_consump_data.drop(columns = ['total_gen'])
     
     
     #filter power df and create df for cumulative capacity
