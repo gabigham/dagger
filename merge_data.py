@@ -180,12 +180,16 @@ def merge_data():
     cap_cont_yr['commissioning_year'] = cap_cont_yr['commissioning_year'].astype(str)
     cap_cum = cap_cont_yr.groupby(by=['country_long', 'commissioning_year']).sum().groupby(level=[0]).cumsum()
 
+    # df for cap added per year
+    cap_added_yr = cap_cont_yr.rename(columns={'country_long':'Country', 'commissioning_year':'Year', 'capacity_mw':'cap_added'})
+    cap_added_yr['Year'] = cap_added_yr['Year'].astype(str)
+
+    
     # merge hdi, pop, and capacity by Country and Year
     hdi_pop_merged = pd.merge(hdi_df, pop_df, on=['Country', 'Year'])
     merged_data = pd.merge(hdi_pop_merged, cap_cum, left_on=['Country', 'Year'], right_on=['country_long', 'commissioning_year'])
-    
     merged_data['Population'] = merged_data['Population']/1_000_000
-    
+    merged_data = pd.merge(merged_data, cap_added_yr, on=['Country', 'Year'])
     
     # merged_data = pd.merge(merged_data, all_consump_data)
     return merged_data, all_consump_data
