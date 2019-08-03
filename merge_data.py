@@ -183,5 +183,9 @@ def merge_data():
     # merge hdi, pop, and capacity by Country and Year
     hdi_pop_merged = pd.merge(hdi_df, pop_df, on=['Country', 'Year'])
     merged_data = pd.merge(hdi_pop_merged, cap_cum, left_on=['Country', 'Year'], right_on=['country_long', 'commissioning_year'])
+    
+    merged_data['Population'] = merged_data['Population']/1_000_000
+    
+    
     # merged_data = pd.merge(merged_data, all_consump_data)
     return merged_data, all_consump_data
