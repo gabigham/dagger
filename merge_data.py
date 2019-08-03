@@ -156,6 +156,10 @@ def merge_data():
     all_consump_data['energy']=11.96*all_consump_data['energy']
     all_consump_data['total_gen']=11.96*all_consump_data['total_gen']
 
+    #drop 
+    all_consump_data = all_consump_data.drop(columns = ['total_gen'])
+    
+    
     #filter power df and create df for cumulative capacity
     pow_pd = power_df[['country_long', 'capacity_mw', 'commissioning_year' ]]
     pow_pd.head(20)
