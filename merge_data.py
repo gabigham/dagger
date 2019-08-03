@@ -3,11 +3,10 @@
 # and returns pandas dataframe for analysis
 
 def merge_data():
-   
     import numpy as np
     import pandas as pd
     import os
-    
+
     #import, clean and format HI data
     hdi_file = 'data/Human Development Index (HDI).csv'
     hdi_df = pd.read_csv(hdi_file, encoding = "ISO-8859-1", skiprows=1)
@@ -34,7 +33,7 @@ def merge_data():
     pop_df = pop_df.drop(['Country Code', 'Indicator Name', 'Indicator Code'], axis=1)
     pop_df = pop_df.melt(id_vars='Country Name', var_name='Year', value_name='Population')
     pop_df = pop_df.rename(columns={'Country Name':'Country'})
-    
+
     #rename countries in hdi_df so consistent in all three datasets for clean merge
     hdi_df['Country'] = hdi_df['Country'].replace({"Bolivia (Plurinational State of)":"Bolivia",
                                               "Congo":"Congo (Rep)",
@@ -81,7 +80,7 @@ def merge_data():
                                               })
 
     #import, clean and format BP consumption data
-    consumption_import = pd.read_excel (r'data\bp-stats-review-2019-all-data.xlsx.', sheet_name='Primary Energy Consumption',skiprows=2)
+    consumption_import = pd.read_excel (r'data/bp-stats-review-2019-all-data.xlsx', sheet_name='Primary Energy Consumption',skiprows=2)
     consumption_import["Region"] = ""
 
     consumption_import = consumption_import.rename(columns={"Million tonnes oil equivalent":"Country"})
@@ -127,7 +126,7 @@ def merge_data():
     #consumption.head()
 
     #import and format BP Consumption by Fuel Type data (row cleanup accomplished through merge in next cell)
-    consump_by_fuel_import = pd.read_excel (r'data\bp-stats-review-2019-all-data.xlsx.', 
+    consump_by_fuel_import = pd.read_excel (r'data/bp-stats-review-2019-all-data.xlsx', 
                                             sheet_name='Primary Energy - Cons by fuel',skiprows=2)
     consump_by_fuel_import
     consump_by_fuel = consump_by_fuel_import.rename(columns={"Million tonnes oil equivalent":"Country","Oil":"2017 Oil",
@@ -145,10 +144,18 @@ def merge_data():
                                                    "Change Renew- ables":"% Change Renewables"})
     consump_by_fuel = consump_by_fuel.drop(['Unnamed: 15','Total','Total.1'], axis=1)
     #consump_by_fuel.head()
-    
+
     #merge consumption df with consump_by_fuel (left merge to finish cleanup of consump_by_fuel)
-    all_consump_data = pd.merge(consumption,consump_by_fuel,how="left",on="Country")
-    all_consump_data.head()
+    tt = consump_by_fuel.melt(id_vars=['Country'], var_name='Year', value_name='energy')
+    vals = tt['Year'].str.split(" ", n = 1, expand = True)
+    tt['Year']=vals[0]
+    tt['Fuel']=vals[1]
+    ts=consumption.melt(id_vars=['Country','Region'], var_name='Year',value_name='total_gen')
+    ts=ts.astype({'Year':'str'})
+    all_consump_data=pd.merge(tt,ts,on=['Country','Year'], how='right')
+    all_consump_data['energy']=11.96*all_consump_data['energy']
+    all_consump_data['total_gen']=11.96*all_consump_data['total_gen']
+    all_consump_data = all_consump_data.drop(columns=['total_gen'])
     
     #filter power df and create df for cumulative capacity
     pow_pd = power_df[['country_long', 'capacity_mw', 'commissioning_year' ]]
@@ -173,11 +180,16 @@ def merge_data():
     cap_cont_yr['commissioning_year'] = cap_cont_yr['commissioning_year'].astype(str)
     cap_cum = cap_cont_yr.groupby(by=['country_long', 'commissioning_year']).sum().groupby(level=[0]).cumsum()
 
+    # df for cap added per year
+    cap_added_yr = cap_cont_yr.rename(columns={'country_long':'Country', 'commissioning_year':'Year', 'capacity_mw':'cap_added'})
+    cap_added_yr['Year'] = cap_added_yr['Year'].astype(str)
+
+    
     # merge hdi, pop, and capacity by Country and Year
     hdi_pop_merged = pd.merge(hdi_df, pop_df, on=['Country', 'Year'])
     merged_data = pd.merge(hdi_pop_merged, cap_cum, left_on=['Country', 'Year'], right_on=['country_long', 'commissioning_year'])
-
-    return merged_data
-
-
-
+    merged_data['Population'] = merged_data['Population']/1_000_000
+    merged_data = pd.merge(merged_data, cap_added_yr, on=['Country', 'Year'])
+    
+    # merged_data = pd.merge(merged_data, all_consump_data)
+    return merged_data, all_consump_data
