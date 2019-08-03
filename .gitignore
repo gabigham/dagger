@@ -2,4 +2,8 @@
 api_keys.py
 config.py
 
-.ipynb*
+
+
+.ipynb_checkpoints
+_pychache_
+
