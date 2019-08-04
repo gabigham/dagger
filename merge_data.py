@@ -61,7 +61,7 @@ def merge_data():
                                                              "Democratic Republic of the Congo":"Congo (Dem Rep)",
                                                              "Macedonia":"North Macedonia",
                                                              "United States of America":"United States"})
-
+   
     #rename countries in pop_df so consistent in all three datasets for clean merge
     pop_df['Country'] = pop_df['Country'].replace({"Congo, Dem. Rep.":"Congo (Dem Rep)", 
                                                "Congo, Rep.":"Congo (Rep)",
@@ -79,43 +79,28 @@ def merge_data():
                                                "Yemen, Rep.":"Yemen"
                                               })
 
+     # define dictionary for country region look up
+    regions = {'North America':["Canada","Mexico","US"],
+                'South/Central America': ["Argentina","Brazil", "Chile", "Colombia", "Ecuador",                                   "Peru","Trinidad & Tobago", "Venezuela","Central America","Other Caribbean",                              "Other South America"], 
+               'Europe':["Austria","Belgium","Bulgaria","Croatia","Cyprus","Czech Republic",                                "Denmark", "Estonia","Finland","France", "Germany","Greece","Hungary",                                  "Iceland", "Ireland","Italy",  "Latvia","Lithuania" ,"Luxembourg", "Netherlands",                         "North Macedonia", "Norway", "Poland","Portugal","Romania",                                                "Slovakia","Slovenia","Spain","Sweden" ,"Switzerland",                                                "Turkey", "Ukraine", "United Kingdom", "Other Europe"],
+           'CIS':["Azerbaijan","Belarus","Kazakhstan","Russian Federation", "Turkmenistan","USSR", "Uzbekistan", "Other CIS"],
+           'Middle East':["Iran","Iraq","Israel","Kuwait","Oman","Qatar", "Saudi Arabia", "United Arab Emirates", "Other Middle East"],
+           'Africa':["Algeria","Egypt","Morocco","South Africa","Eastern Africa","Middle Africa", "Western Africa","Other Northern Africa" , "Other Southern Africa"],
+           'Asia Pacific':["Australia","Bangladesh","China","China Hong Kong SAR", "India","Indonesia", "Japan","Malaysia","New Zealand","Pakistan","Philippines","Singapore", "South Korea","Sri Lanka","Taiwan","Thailand","Vietnam","Other Asia Pacific"]
+                       }
+    
+    # functions takes a dataframe with a 'Country' column and outputs with added 'Region' column
+    def label_regions(df):
+        df['Region'] = ""
+        for region, countries in regions.items():
+            df.loc[df["Country"].isin(countries),"Region"]=region
+        return df
+    
     #import, clean and format BP consumption data
     consumption_import = pd.read_excel (r'data/bp-stats-review-2019-all-data.xlsx', sheet_name='Primary Energy Consumption',skiprows=2)
-    consumption_import["Region"] = ""
-
     consumption_import = consumption_import.rename(columns={"Million tonnes oil equivalent":"Country"})
-    consumption_import.loc[consumption_import["Country"].isin
-                       (["Canada","Mexico","US"]),"Region"]="North America"
-
-    consumption_import.loc[consumption_import["Country"].isin
-                       (["Argentina","Brazil","Chile","Colombia","Ecuador","Peru","Trinidad & Tobago",
-                         "Venezuela","Central America","Other Caribbean","Other South America"]),
-                       "Region"]="South/Central America"
-
-    consumption_import.loc[consumption_import["Country"].isin
-                       (["Austria","Belgium","Bulgaria","Croatia","Cyprus","Czech Republic","Denmark",
-                         "Estonia","Finland","France","Germany","Greece","Hungary","Iceland","Ireland","Italy",
-                         "Latvia","Lithuania","Luxembourg","Netherlands","North Macedonia","Norway","Poland",
-                         "Portugal","Romania","Slovakia","Slovenia","Spain","Sweden","Switzerland","Turkey",
-                         "Ukraine","United Kingdom","Other Europe"]),"Region"]="Europe"
-
-    consumption_import.loc[consumption_import["Country"].isin
-                       (["Azerbaijan","Belarus","Kazakhstan","Russian Federation",
-                         "Turkmenistan","USSR","Uzbekistan","Other CIS"]),"Region"]="CIS"
-
-    consumption_import.loc[consumption_import["Country"].isin
-                       (["Iran","Iraq","Israel","Kuwait","Oman","Qatar","Saudi Arabia","United Arab Emirates",
-                         "Other Middle East"]),"Region"]="Middle East"
-
-    consumption_import.loc[consumption_import["Country"].isin
-                       (["Algeria","Egypt","Morocco","South Africa","Eastern Africa","Middle Africa",
-                         "Western Africa","Other Northern Africa","Other Southern Africa"]),"Region"]="Africa"
-
-    consumption_import.loc[consumption_import["Country"].isin
-                        (["Australia","Bangladesh","China","China Hong Kong SAR","India","Indonesia",
-                          "Japan","Malaysia","New Zealand","Pakistan","Philippines","Singapore",
-                          "South Korea","Sri Lanka","Taiwan","Thailand","Vietnam","Other Asia Pacific"]),
-                       "Region"]="Asia Pacific"
+    
+    label_regions(consumption_import)
 
     consumption_import = consumption_import.drop(['2018.1', '2007-17', '2018.2','Unnamed: 58','Unnamed: 59'], axis=1)
     consumption = consumption_import[consumption_import["Country"].notnull()].sort_values("Country")
@@ -184,12 +169,14 @@ def merge_data():
     cap_added_yr = cap_cont_yr.rename(columns={'country_long':'Country', 'commissioning_year':'Year', 'capacity_mw':'cap_added'})
     cap_added_yr['Year'] = cap_added_yr['Year'].astype(str)
 
-    
     # merge hdi, pop, and capacity by Country and Year
     hdi_pop_merged = pd.merge(hdi_df, pop_df, on=['Country', 'Year'])
     merged_data = pd.merge(hdi_pop_merged, cap_cum, left_on=['Country', 'Year'], right_on=['country_long', 'commissioning_year'])
     merged_data['Population'] = merged_data['Population']/1_000_000
     merged_data = pd.merge(merged_data, cap_added_yr, on=['Country', 'Year'])
+    
+    # add regions to merged_data
+    label_regions(merged_data)
     
     # merged_data = pd.merge(merged_data, all_consump_data)
     return merged_data, all_consump_data
