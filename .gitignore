@@ -4,6 +4,6 @@ config.py
 
 
 
-.ipynb_checkpoints
-_pychache_
+.ipynb_checkpoints/
+_pychache_/
 
