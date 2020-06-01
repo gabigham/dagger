@@ -1,8 +1,7 @@
-## Energy Consumption vs. Human Development Index (HDI) Over Time
+## Energy Productions vs. Human Development Index (HDI) Over Time
 
-Team Dagger: George Bigham, Dawn Brenner, Adam Pritchett
-Project Description/Outline:
-Our team will analyze datasets of energy consumption and HDI.
+An analysis of the correlation between energy production and human developement done by team dagger.  
+
 
 Research Questions to Answer:
 •	What is the relationship between energy consumption and HDI?
